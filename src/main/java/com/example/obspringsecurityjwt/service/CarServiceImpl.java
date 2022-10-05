@@ -84,6 +84,8 @@ public class CarServiceImpl implements CarService {
         return carDB;
     }
 
+
+
     private boolean validateCar(Car car) {
         //car null validation
         if(car == null){
@@ -103,20 +105,20 @@ public class CarServiceImpl implements CarService {
 
     }
 
-    @Override
     public void deleteById(Long id) {
-        log.info("deleting car by id ");
+        log.info("deleting car by id");
         if(id == null || id < 0 || id == 0){
-            log.warn("trying to delete car with wrong id " );
+            log.warn("trying to delete car with wrong id");
             return;
         }
-
-        try{
-            this.carRepository.delete(id);
+        try {
+            this.carRepository.deleteById(id);
         } catch (Exception e) {
-            log.error("Error trying to delete car by id {}", id, e);
+            log.error("Error trying to delete car by id {} ", id, e);
         }
     }
+
+
 
     @Override
     public void deleteAll() {
@@ -135,6 +137,7 @@ public class CarServiceImpl implements CarService {
         this. carRepository.deleteAll(cars);
 
     }
+
 
     @Override
     public void deleteAllById(List<Long> ids) {

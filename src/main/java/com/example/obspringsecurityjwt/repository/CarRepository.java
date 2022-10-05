@@ -30,5 +30,5 @@ public interface CarRepository extends JpaRepository<Car,Long> {
 
     List<Car> findByReleaseDateBetween(LocalDate starDate, LocalDate endDate);
 
-    void delete(Long id);
+
 }

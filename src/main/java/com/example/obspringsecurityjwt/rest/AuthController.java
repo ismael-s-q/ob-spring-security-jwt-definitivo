@@ -8,18 +8,14 @@ import com.example.obspringsecurityjwt.security.payload.JwtResponse;
 import com.example.obspringsecurityjwt.security.payload.LoginRequest;
 import com.example.obspringsecurityjwt.security.payload.MessageResponse;
 import com.example.obspringsecurityjwt.security.payload.RegisterRequest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.security.auth.login.LoginException;
+import org.springframework.web.bind.annotation.*;
 
 /**
  *
@@ -31,10 +27,11 @@ import javax.security.auth.login.LoginException;
  * Si las credenciales son válidas se genera un token JWT como respuesta
  *
  */
- // @CrossOrigin(origins = "http://localhhost:8081")
+   // @CrossOrigin(origins = "http://localhhost:8080")
     @RestController
     @RequestMapping("/api/auth")
 public class AuthController {
+
 
     private final AuthenticationManager authManager;
 
@@ -45,6 +42,7 @@ public class AuthController {
     private final JwtTokenUtil jwtTokenUtil;
 
 
+
     public AuthController (AuthenticationManager authManager,
                            UserRepository userRepository,
                            PasswordEncoder encoder,
@@ -53,8 +51,11 @@ public class AuthController {
         this.userRepository = userRepository;
         this.encoder = encoder;
         this.jwtTokenUtil = jwtTokenUtil;
+
+
     }
 
+    @PostMapping("/login")
     public ResponseEntity<JwtResponse>  login (@RequestBody LoginRequest loginRequest) {
 
 
@@ -104,6 +105,8 @@ public class AuthController {
         User user = new User(signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getpassword()));
+
+        userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 

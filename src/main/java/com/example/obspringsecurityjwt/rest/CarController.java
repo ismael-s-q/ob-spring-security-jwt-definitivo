@@ -124,7 +124,7 @@ public List<Car> findAll() {
     return ResponseEntity.ok(this.carService.save(car));
     }
 
-    // delete one
+     // delete one
     @DeleteMapping("/cars/{id}")
     public ResponseEntity<Car> delete(@PathVariable Long id) {
 

@@ -1,7 +1,7 @@
 package com.example.obspringsecurityjwt.security.jwt;
 
 
-import antlr.Token;
+import com.example.obspringsecurityjwt.security.service.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
@@ -35,7 +35,11 @@ public class JwtTokenUtil {
     private int jwtExpirationMs;
 
 
+    UserDetailsServiceImpl service = new UserDetailsServiceImpl();
     SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+
+
 
     public String generateJwtToken(Authentication authentication){
 

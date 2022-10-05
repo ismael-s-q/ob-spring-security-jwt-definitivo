@@ -3,19 +3,22 @@ package com.example.obspringsecurityjwt.security.config;
 import com.example.obspringsecurityjwt.security.jwt.JwtAuthEntryPoint;
 import com.example.obspringsecurityjwt.security.jwt.JwtRequestFilter;
 import com.example.obspringsecurityjwt.security.service.UserDetailsServiceImpl;
-import org.apache.tomcat.util.file.ConfigurationSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -27,8 +30,7 @@ import java.util.List;
  */
 
 @Configuration
-@EnableWebSecurity  // permite a Spring aplicar esta configuración a la configuracion de seguridad global
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig  {
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -36,22 +38,49 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtAuthEntryPoint unauthorizedHandler;
 
+
     // ============== CREACIÓN DE BEANS ==============
 
-    @Bean
-    public JwtRequestFilter authenticationJwtTokenFilter() {
 
-        return new JwtRequestFilter();
-    }
+
 
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        return super.authenticationManagerBean();
 
+
+        http.authorizeRequests().antMatchers("/login").permitAll()
+                .antMatchers("/users/**", "/settings/**").hasAuthority("Admin")
+               // .hasAnyAuthority("Admin", "Editor", "Salesperson")
+              //  .hasAnyAuthority("Admin", "Editor", "Salesperson", "Shipper")
+                .anyRequest().authenticated()
+                .and().formLogin()
+                .loginPage("/login")
+                .usernameParameter("email")
+                .permitAll()
+                .and()
+                .rememberMe().key("AbcdEfghIjklmNopQrsTuvXyz_0123456789")
+                .and()
+                .logout().permitAll();
+
+        http.headers().frameOptions().sameOrigin();
+
+        return http.build();
     }
+
+
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().antMatchers("/images/**", "/js/**", "/webjars/**");
+    }
+
+
+
+
+
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -83,31 +112,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-    // ======================== OVERRIDE: SOBREESCRIBIR FUNCIONALIDAD SECURITY POR DEFECTO ==============
-
-    @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-
-    }
 
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
 
-        // Cross-Site Request Forgery CSRF
-        //CORS (Cross-origin resource sharing )
 
-        http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/v2api-docs","/confugration/**","/swagger*/**","/webjars/**").permitAll()
-                 .antMatchers("/").permitAll()
-                .antMatchers("/").permitAll()
-                .anyRequest().authenticated();
-
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-
-    }
 }
