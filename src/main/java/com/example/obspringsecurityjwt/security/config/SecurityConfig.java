@@ -53,7 +53,7 @@ public class SecurityConfig  {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/api/auth/**").permitAll()
-                .antMatchers("/users/**", "/settings/**").hasAuthority("Admin")
+              //  .antMatchers("/users/**", "/settings/**").hasAuthority("Admin")
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 .antMatchers("/api/hello/**").permitAll()
                 .antMatchers("/").permitAll()
@@ -67,7 +67,7 @@ public class SecurityConfig  {
 
 
 
-        http.headers().frameOptions().sameOrigin();
+        http.headers().frameOptions().disable();
 
         return http.build();
 
@@ -103,7 +103,7 @@ public class SecurityConfig  {
 
 
 
-        // configuration.setAllowedOriginPatterns(List.of("http://localhost:4200","https://angular-springboot-*.vercel.app"));
+        // configuration.setAllowedOriginPatterns(List.of("http://localhost:4200","https://angular-springboot1-sable.vercel.app"));
 
         configuration.setAllowedOriginPatterns(List.of("http://localhost:4200","angular-springboot1-sable.vercel.app"));
         configuration.setAllowedMethods(List.of("GET","POST","OPTIONS","DELETE","PUT","PATCH"));
@@ -114,7 +114,6 @@ public class SecurityConfig  {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 
 
 
